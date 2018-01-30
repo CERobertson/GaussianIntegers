@@ -52,7 +52,8 @@ namespace In_Extremis.Editor
         private bool loaded = false;
         private void ComplexPlane_Loaded(object sender, RoutedEventArgs e)
         {
-            var something = Constants.E - Math.E;
+            var something = CalculateConstants.ℯ - Math.E;
+            var something_else = CalculateConstants.π - Math.PI;
             Factors = new ObservableCollection<PrimeFactors>(Gaussian.Factors.Select(x => x.Value));
             CalculateLattice();
             background = Brushes.Transparent;
