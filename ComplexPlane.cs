@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using In_Extremis.Editor.Euler;
 using In_Extremis.Editor.Gauss;
 
 namespace In_Extremis.Editor
@@ -51,7 +52,7 @@ namespace In_Extremis.Editor
         private bool loaded = false;
         private void ComplexPlane_Loaded(object sender, RoutedEventArgs e)
         {
-
+            var something = Constants.E - Math.E;
             Factors = new ObservableCollection<PrimeFactors>(Gaussian.Factors.Select(x => x.Value));
             CalculateLattice();
             background = Brushes.Transparent;
