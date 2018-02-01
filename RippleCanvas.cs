@@ -55,7 +55,7 @@ namespace In_Extremis.Editor
         {
             Factors = new ObservableCollection<PrimeFactors>(Gaussian.Factors.Select(x => x.Value));
             Lattice = Gaussian.Lattice(scale);
-
+            visual_registry = new Dictionary<int, Visual>(Lattice.Count);
             background = Brushes.Transparent;
             var gradient = new LinearGradientBrush(new GradientStopCollection(new[] { new GradientStop(Colors.DarkMagenta, 0.0), new GradientStop(Colors.DarkBlue, .25), new GradientStop(Colors.DarkMagenta, 0.75) }));
             pen = new Pen(gradient, 1);
@@ -64,13 +64,15 @@ namespace In_Extremis.Editor
             DoubleAnimation radiusAnimation = new DoubleAnimation();
             radiusAnimation.From = 0;
             radiusAnimation.To = Radius;
-            radiusAnimation.AutoReverse = false;
-            radiusAnimation.Duration = TimeSpan.FromMinutes(.25);
+            radiusAnimation.AutoReverse = true;
+            radiusAnimation.RepeatBehavior = RepeatBehavior.Forever;
+            radiusAnimation.Duration = TimeSpan.FromMinutes(.125);
             this.BeginAnimation(RippleCanvas.RadiusProperty, radiusAnimation);
             loaded = true;
         }
 
         DrawingVisual circle_visual = new DrawingVisual();
+        double last_radiusSquared = 0;
         public void Draw()
         {
             if (loaded)
@@ -85,7 +87,10 @@ namespace In_Extremis.Editor
                 }
                 this.AddVisual(circle_visual);
 
-                while (progress < RadiusSquared && progress < Lattice.Count())
+                var temp_radius = RadiusSquared;
+                var forward = temp_radius - last_radiusSquared >= 0;
+                last_radiusSquared = temp_radius;
+                while (progress < RadiusSquared && progress < Lattice.Count() && forward)
                 {
                     visual = new DrawingVisual();
                     using (DrawingContext dc = visual.RenderOpen())
@@ -95,21 +100,34 @@ namespace In_Extremis.Editor
                             dc.DrawEllipse(background, pen, Lattice[progress][j], point_radius, point_radius);
                         }
                     }
-                    this.AddVisual(visual);
+                    this.RegisterAndAddVisual(visual, progress);
                     progress++;
                 }
+                while(progress > RadiusSquared && progress > 0 && !forward)
+                {
+                    DeleteVisual(visual_registry[progress - 1]);
+                    progress--;
+                }
+
             }
         }
         #endregion
 
         #region Visual data controls
         private List<Visual> visuals = new List<Visual>();
+        private Dictionary<int, Visual> visual_registry = new Dictionary<int, Visual>();
         protected override int VisualChildrenCount {
             get { return visuals.Count; }
         }
         protected override Visual GetVisualChild(int index)
         {
             return visuals[index];
+        }
+
+        public void RegisterAndAddVisual(Visual visual, int index)
+        {
+            visual_registry[index] = visual;
+            AddVisual(visual);
         }
         public void AddVisual(Visual visual)
         {

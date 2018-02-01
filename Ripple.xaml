@@ -9,6 +9,6 @@
       Title="Ripple">
 
     <Grid VerticalAlignment="Center" HorizontalAlignment="Center">
-        <local:RippleCanvas  x:Name="RippleCanvas" Radius="60" />        
+        <local:RippleCanvas  x:Name="RippleCanvas" Radius="30" />        
     </Grid>
 </Page>
