@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace In_Extremis.Editor.Gauss
 {
@@ -51,7 +52,6 @@ namespace In_Extremis.Editor.Gauss
         }
 
         public List<int> Factors { get; private set; }
-
         private List<PrimeExponent> factorExponents;
         public List<PrimeExponent> FactorExponents {
             get {
@@ -124,8 +124,7 @@ namespace In_Extremis.Editor.Gauss
             }
             return ring;
         }
-
-
+        
         public bool IsPrime { get { return N > 1 && Factors.Count <= 1; } }
         public int N { get; private set; }
         public int N_fromFactors {
@@ -173,8 +172,7 @@ namespace In_Extremis.Editor.Gauss
                 return -1;
             }
         }
-
-
+        
         public void ValidateFactors()
         {
             var v = 1;

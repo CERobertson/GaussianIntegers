@@ -8,13 +8,13 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
-using In_Extremis.Editor.Euler;
 using In_Extremis.Editor.Gauss;
 
 namespace In_Extremis.Editor
 {
-    public class ComplexPlane : Canvas
+    public class RippleCanvas : Canvas
     {
+        #region Dependency Properties used by Animations.
         public double Radius {
             get { return (double)GetValue(RadiusProperty); }
             set { SetValue(RadiusProperty, value); }
@@ -22,108 +22,87 @@ namespace In_Extremis.Editor
         public double RadiusSquared {
             get { return Radius * Radius; }
         }
-        public static readonly DependencyProperty RadiusProperty;
 
-        static ComplexPlane()
+        public static readonly DependencyProperty RadiusProperty;
+        static RippleCanvas()
         {
             var radiusMetadata = new FrameworkPropertyMetadata(OnRadiusChanged);
-            RadiusProperty = DependencyProperty.Register("Radius", typeof(double), typeof(ComplexPlane), radiusMetadata);
+            RadiusProperty = DependencyProperty.Register("Radius", typeof(double), typeof(RippleCanvas), radiusMetadata);
+        }
+        public RippleCanvas()
+            : base()
+        {
+            Loaded += RippleCanvas_Loaded;
         }
         private static void OnRadiusChanged(DependencyObject d, DependencyPropertyChangedEventArgs args)
         {
-            ((ComplexPlane)d).Draw();
+            ((RippleCanvas)d).Draw();
         }
+        #endregion
 
-        public ComplexPlane()
-            : base()
-        {
-            Loaded += ComplexPlane_Loaded;
-        }
-
-        public ObservableCollection<PrimeFactors> Factors { get; private set; }
-        private Dictionary<int, Point[]> Lattice;
-
+        #region Visual details
         private double scale = 20;
         private SolidColorBrush background;
         private Pen pen;
-        private Pen point_pen;
 
+        public ObservableCollection<PrimeFactors> Factors { get; private set; }
+        //private Point[][] Lattice;
+        private Dictionary<int, Point[]> Lattice;
+        private int progress = 0;
+        private double point_radius = 1;
         private bool loaded = false;
-        private void ComplexPlane_Loaded(object sender, RoutedEventArgs e)
+        private void RippleCanvas_Loaded(object sender, RoutedEventArgs e)
         {
             Factors = new ObservableCollection<PrimeFactors>(Gaussian.Factors.Select(x => x.Value));
             Lattice = Gaussian.Lattice(scale);
+
             background = Brushes.Transparent;
-            //var gradient = new LinearGradientBrush(Colors.DarkBlue, Colors.DarkMagenta, 45);
             var gradient = new LinearGradientBrush(new GradientStopCollection(new[] { new GradientStop(Colors.DarkMagenta, 0.0), new GradientStop(Colors.DarkBlue, .25), new GradientStop(Colors.DarkMagenta, 0.75) }));
-            var gradient2 = new LinearGradientBrush(new GradientStopCollection(new[] { new GradientStop(Colors.DarkOrchid, 0.0), new GradientStop(Colors.MediumPurple, 0.45) }));
             pen = new Pen(gradient, 1);
-            point_pen = new Pen(gradient2, scale);
 
             Draw();
-
             DoubleAnimation radiusAnimation = new DoubleAnimation();
             radiusAnimation.From = 0;
             radiusAnimation.To = Radius;
             radiusAnimation.AutoReverse = false;
             radiusAnimation.Duration = TimeSpan.FromMinutes(.25);
-            this.BeginAnimation(ComplexPlane.RadiusProperty, radiusAnimation);
+            this.BeginAnimation(RippleCanvas.RadiusProperty, radiusAnimation);
             loaded = true;
         }
 
-        DrawingVisual circle_visual;
-        double last_remainder = 0;
-        int last_i = 0;
+        DrawingVisual circle_visual = new DrawingVisual();
         public void Draw()
         {
             if (loaded)
             {
-                if (circle_visual != null) {
-                    DeleteVisual(circle_visual);
-                }
-
-                DrawingVisual visual;
-
-                var i_radius = (int)Radius;
-                var remainder = Radius - i_radius;
-                var difference_from_one = 1 - remainder;
-                var point_radius = 1;
+                DeleteVisual(circle_visual);
+                DrawingVisual visual = new DrawingVisual();
 
                 var circle_radius = Radius * scale;
-
-                visual = new DrawingVisual();
-                circle_visual = new DrawingVisual();
-
                 using (DrawingContext dc = circle_visual.RenderOpen())
                 {
                     dc.DrawEllipse(background, pen, new Point(0, 0), circle_radius, circle_radius);
                 }
                 this.AddVisual(circle_visual);
 
-                if (last_remainder == 0 || last_remainder > remainder)
+                while (progress < RadiusSquared && progress < Lattice.Count())
                 {
+                    visual = new DrawingVisual();
                     using (DrawingContext dc = visual.RenderOpen())
                     {
-                        var start = last_i * last_i;
-                        var end = i_radius * i_radius;
-                        for (int i = start; i < end; i++)
+                        for (int j = 0; j < Lattice[progress].Length; j++)
                         {
-                            var l = Lattice[i];
-                            foreach (var p in l)
-                            {
-                                dc.DrawEllipse(background, point_pen, p, point_radius, point_radius);
-                            }
+                            dc.DrawEllipse(background, pen, Lattice[progress][j], point_radius, point_radius);
                         }
                     }
                     this.AddVisual(visual);
-                    last_i = i_radius;
+                    progress++;
                 }
-                last_remainder = remainder;
             }
         }
+        #endregion
 
-
-        #region Control of this control's visual children
+        #region Visual data controls
         private List<Visual> visuals = new List<Visual>();
         protected override int VisualChildrenCount {
             get { return visuals.Count; }
