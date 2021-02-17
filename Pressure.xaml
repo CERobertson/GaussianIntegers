@@ -12,10 +12,10 @@
       <local:PressureCanvas Radius="10">
          <local:PressureCanvas.Gradient>
             <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-               <GradientStop Color="SaddleBrown" Offset="0.0"/>
-               <GradientStop Color="DarkRed" Offset="0.2"/>
-               <GradientStop Color="Red" Offset="0.6"/>
-               <GradientStop Color="Yellow" Offset="0.8"/>
+               <GradientStop Color="Black" Offset="0.0"/>               
+               <GradientStop Color="Brown" Offset="0.25"/>              
+               <GradientStop Color="Red" Offset="0.5"/>
+               <GradientStop Color="Yellow" Offset="0.75"/>
                <GradientStop Color="White" Offset="1.0"/>
             </LinearGradientBrush>
          </local:PressureCanvas.Gradient>

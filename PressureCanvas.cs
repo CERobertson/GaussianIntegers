@@ -58,7 +58,7 @@ namespace In_Extremis.Editor {
       #endregion
 
       #region Visual details
-      private const double scale = 20;
+      private const double scale = 10;
       private const double half_scale = scale / 2;
       private SolidColorBrush background;
       private Pen pen;
@@ -80,7 +80,7 @@ namespace In_Extremis.Editor {
          visual_registry = new Dictionary<int, Visual>(Lattice.Count);
          background = Brushes.Transparent;
          //var gradient = new LinearGradientBrush(new GradientStopCollection(new[] { new GradientStop(Colors.DarkMagenta, 0.0), new GradientStop(Colors.DarkBlue, .25), new GradientStop(Colors.DarkMagenta, 0.75) }));
-         pen = new Pen(Brushes.White, 1);
+         pen = new Pen(Brushes.Transparent, 1);
 
          loaded = true;
          Draw();
