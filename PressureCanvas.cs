@@ -13,9 +13,12 @@ namespace In_Extremis.Editor {
    class Ring {
       public Point[] Points { get; set; }
       public Rect[] Rects { get; set; }
+      public int Id { get; set; }
       public Brush Brush { get; set; }
       public int Mass { get; set; }
       public int Pressure { get; set; }
+      public double RadiusDelta { get; set; }
+      public double Radius { get => (double)Mass / (2 * Math.PI); }
    }
 
    public class PressureCanvas : Canvas {
@@ -64,10 +67,8 @@ namespace In_Extremis.Editor {
       private Pen pen;
 
       public ObservableCollection<PrimeFactors> Factors { get; private set; }
-      //private Point[][] Lattice;
       private Dictionary<int, Point[]> Lattice;
       private Dictionary<int, Ring> Rings;
-      private int progress = 0;
       private const double point_radius = 1;
       private const double half_point_radius = point_radius / 2;
       private bool loaded = false;
@@ -79,7 +80,6 @@ namespace In_Extremis.Editor {
             Rings = CreateRings(pressureCanvas);
          visual_registry = new Dictionary<int, Visual>(Lattice.Count);
          background = Brushes.Transparent;
-         //var gradient = new LinearGradientBrush(new GradientStopCollection(new[] { new GradientStop(Colors.DarkMagenta, 0.0), new GradientStop(Colors.DarkBlue, .25), new GradientStop(Colors.DarkMagenta, 0.75) }));
          pen = new Pen(Brushes.Transparent, 1);
 
          loaded = true;
@@ -87,26 +87,29 @@ namespace In_Extremis.Editor {
       }
 
       Dictionary<int, Ring> CreateRings(PressureCanvas pressureCanvas) {
-         var ring = new List<Point>();
+         var points = new List<Point>();
          var size = (int)Math.Sqrt(Lattice.Count) + 1;
          var result = new Dictionary<int, Ring>(size);
          var i = 0;
          var ring_index = 0;
          while (i < Lattice.Count) {
             if (Math.Sqrt(i) <= ring_index) {
-               ring.AddRange(Lattice[i]);
+               points.AddRange(Lattice[i]);
                i++;
             }
             else {
-               result[ring_index] = new Ring {
-                  Points = ring.ToArray(),
-                  Mass = ring.Count,
-                  Rects = ring.Select(x =>
+               var ring = new Ring {
+                  Id = ring_index,
+                  Points = points.ToArray(),
+                  Mass = points.Count,
+                  Rects = points.Select(x =>
                      new Rect(
                         new Point(x.X - half_scale, x.Y + half_scale),
                         new Point(x.X + half_scale, x.Y - half_scale))).ToArray(),
                };
-               ring.Clear();
+               ring.RadiusDelta = ring_index - ring.Radius;
+               result[ring_index] = ring;
+               points.Clear();
                ring_index++;
             }
          }
@@ -142,6 +145,7 @@ namespace In_Extremis.Editor {
                   for (int i = 0; i < ring.Rects.Length; i++) {
                      dc.DrawRectangle(ring.Brush, pen, ring.Rects[i]);
                   }
+                  Console.WriteLine($"{ring.Id}\t{ring.RadiusDelta}\t{(ring.RadiusDelta * ring.RadiusDelta )/ (ring.Mass * ring.Mass)}");
                }
             }
             AddVisual(visual);
