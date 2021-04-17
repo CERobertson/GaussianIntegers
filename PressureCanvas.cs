@@ -11,6 +11,7 @@ using System.Windows.Media.Animation;
 namespace In_Extremis.Editor {
 
    class Ring {
+
       public Point[] Points { get; set; }
       public Rect[] Rects { get; set; }
       public int Id { get; set; }
