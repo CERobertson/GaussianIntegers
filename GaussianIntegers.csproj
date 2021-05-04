@@ -78,6 +78,10 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Euler\CalculateConstants.cs" />
+    <Compile Include="Pressure.xaml.cs">
+      <DependentUpon>Pressure.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="PressureCanvas.cs" />
     <Compile Include="Ripple.xaml.cs">
       <DependentUpon>Ripple.xaml</DependentUpon>
     </Compile>
@@ -94,6 +98,10 @@
     <Compile Include="ComplexPlanePage.xaml.cs">
       <DependentUpon>ComplexPlanePage.xaml</DependentUpon>
     </Compile>
+    <Page Include="Pressure.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Ripple.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -129,12 +137,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\In Extremis.Save\In Extremis.Save.csproj">
-      <Project>{54004c58-0bcd-47bf-93c7-9f882a3610a2}</Project>
-      <Name>In Extremis.Save</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
